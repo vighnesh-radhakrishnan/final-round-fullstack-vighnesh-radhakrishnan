@@ -22,6 +22,7 @@ class VendorBase(BaseModel):
 class VendorCreate(VendorBase):
     pass
 
+# update vendor model
 class VendorUpdate(BaseModel):
     name: Optional[str] = None
     category: Optional[str] = None
