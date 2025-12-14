@@ -26,6 +26,9 @@ class VendorUpdate(BaseModel):
     name: Optional[str] = None
     category: Optional[str] = None
     owner: Optional[str] = None
+    total_spend: Optional[float] = None
+    thirty_day_spend: Optional[float] = None
+    ninety_day_spend: Optional[float] = None
     payment_method: Optional[PaymentMethod] = None
     location: Optional[str] = None
     department: Optional[str] = None
