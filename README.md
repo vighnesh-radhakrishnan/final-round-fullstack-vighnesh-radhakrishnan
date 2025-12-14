@@ -1,6 +1,6 @@
-# Vendor Management System
+# Vendor Management System (Ramp's vendor interface)
 
-Full-stack vendor management application built with FastAPI and React. This project recreates key functionality from Ramp's vendor management interface.
+A full-stack vendor management application recreating core functionality from Ramp's vendor interface. Built as a take-home assessment demonstrating fullstack development skills.
 
 ## Tech Stack
 
