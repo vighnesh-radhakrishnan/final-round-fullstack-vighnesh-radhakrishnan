@@ -22,9 +22,12 @@ A full-stack vendor management application recreating core functionality from Ra
 │
 └── frontend/
     ├── src/
-    │   ├── components/      # React components
+    │   ├── components/
+    │   │   ├── ui/          # ShadCN UI components
+    │   │   └── vendors/     # Vendor table and creation panel
     │   ├── services/        # API integration layer
-    │   └── types/           # TypeScript type definitions
+    │   ├── types/           # TypeScript type definitions
+    │   └── hooks/           # Custom hooks (debounce)
     └── package.json         # Node dependencies
 ```
 
@@ -33,12 +36,14 @@ A full-stack vendor management application recreating core functionality from Ra
 ### Implemented
 
 - Complete CRUD API for vendor management
-- Search vendors by name, category, or owner
-- Sort by any column (asc/desc)
+- Search vendors by name, category, or owner with debouncing
+- Column sorting (vendor name, spend amounts, department, creation date, status)
+- Right-side slide-in panel for vendor creation
 - Pagination support for large datasets
-- 25+ pre-seeded vendor records with diverse data
-- Full type safety with typeScript and Pydantic
+- 30 pre-seeded vendor records with diverse data
+- Full type safety with TypeScript and Pydantic
 - CORS-enabled API for frontend integration
+- Real-time table updates after vendor creation
 
 ### Intentionally Omitted (As Per Requirements)
 
@@ -174,7 +179,9 @@ curl -X POST http://localhost:8000/vendors \
 
 ## Implementation Notes
 
-to be updated
+The vendor table displays all columns from Ramp's interface. Columns with unavailable data show placeholder values.
+
+The vendor creation panel uses a simplified single-step form instead of Ramp's multi-step workflow, collecting basic vendor information with dropdown selections for payment and tax details (Not a full copy of original Ramp experience).
 
 ## Author
 
