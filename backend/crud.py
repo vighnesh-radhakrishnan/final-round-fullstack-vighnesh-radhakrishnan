@@ -27,7 +27,7 @@ def get_vendors(
     sort_order: str = "asc"
 ) -> List[Vendor]:
     """
-    Get all vendors with optional search and sorting
+    get all vendors with optional search and sorting
     
     Args:
         db: Database session

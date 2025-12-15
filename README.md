@@ -24,7 +24,7 @@ A full-stack vendor management application recreating core functionality from Ra
     ├── src/
     │   ├── components/
     │   │   ├── ui/          # ShadCN UI components
-    │   │   └── vendors/     # Vendor UI components (VendorTable, VendorTableRow, VendorTableHeader, NewVendorSheet, VendorFormFields, VendorActionsMenu, Pagination)
+    │   │   └── vendors/     # Vendor UI components (VendorTable, VendorTableRow, VendorTableHeader, NewVendorModal, VendorFormFields, VendorActionsMenu, Pagination)
     │   ├── services/        # API integration layer
     │   ├── types/           # TypeScript type definitions
     │   └── hooks/           # Custom hooks (debounce)
@@ -47,7 +47,7 @@ A full-stack vendor management application recreating core functionality from Ra
 - CORS-enabled API for frontend integration
 - Real-time table updates after vendor creation
 - Bottom panel on check box selection with functioning deselect all feature
-- Simplified New Vebdor Form panel that takes basic info and creates a new vendor data to the table (re-directs to vendor page after creation as required)
+- Simplified New Vendor Form panel that takes basic info and creates a new vendor data to the table (redirects to vendor page after creation as required)
 
 ### Intentionally Omitted (As Per Requirements)
 
@@ -187,7 +187,7 @@ The vendor table displays all columns from Ramp's interface. Columns with unavai
 
 The vendor creation panel uses a simplified single-step form instead of Ramp's multi-step workflow, collecting basic vendor information with dropdown selections for payment and tax details (Not a full copy of original Ramp experience).
 
-The Kebab Menu on Vendor table doesn't support edit features (edit status, owner and deptartment - visual only) (dialog box for editing value to be added)
+The Kebab Menu on the vendor table doesn't support edit features (edit status, owner and department - visual only) (dialog box for editing value to be added)
 
 ## Author
 
