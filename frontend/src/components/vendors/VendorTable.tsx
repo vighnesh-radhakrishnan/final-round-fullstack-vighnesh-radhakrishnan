@@ -26,6 +26,7 @@ import type { Vendor } from "@/types/vendor";
 import { vendorApi } from "@/services/api";
 import { useDebounce } from "@/hooks/useDebounce";
 import { VendorActionsMenu } from "./VendorActionsMenu";
+import { Pagination } from "./Pagination";
 
 export default function VendorTable() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -37,12 +38,14 @@ export default function VendorTable() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [hoveredOwnerId, setHoveredOwnerId] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     fetchVendors();
-  }, [debouncedSearchTerm, sortBy, sortOrder]);
+  }, [debouncedSearchTerm, sortBy, sortOrder, currentPage]);
 
   const fetchVendors = async () => {
     try {
@@ -51,6 +54,8 @@ export default function VendorTable() {
         search: debouncedSearchTerm || undefined,
         sort_by: sortBy || undefined,
         sort_order: sortOrder,
+        page: currentPage,
+        limit: itemsPerPage,
       });
       setVendors(response.vendors);
       setTotalCount(response.total);
@@ -96,6 +101,11 @@ export default function VendorTable() {
 
   const handleClearSelection = () => {
     setSelectedRows(new Set());
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setSelectedRows(new Set()); // Clear selection on page change
   };
 
   const formatCurrency = (amount: number) => {
@@ -166,7 +176,7 @@ export default function VendorTable() {
   }
 
   return (
-    <div className="space-y-4 relative pb-20">
+    <div className="space-y-4 relative">
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         {/* Search */}
@@ -189,7 +199,7 @@ export default function VendorTable() {
           )}
         </div>
 
-        {/* Action Icons with proper tooltips */}
+        {/* Action Icons */}
         <div className="flex items-center gap-2">
           <div className="relative group">
             <button className="p-1.5 hover:bg-gray-100 rounded-full border border-gray-400">
@@ -220,15 +230,21 @@ export default function VendorTable() {
         </div>
       </div>
 
-      {/* Table with always-visible scrollbar */}
+      {/* Table Container - Fixed height with scrollbar */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="overflow-x-scroll" style={{ overflowX: "scroll" }}>
+        <div
+          className="overflow-x-scroll overflow-y-auto"
+          style={{
+            overflowX: "scroll",
+            maxHeight: "calc(100vh - 280px)",
+          }}
+        >
           <Table>
             <TableHeader>
               <TableRow className="border-b border-gray-200">
-                {/* Sticky Checkbox Column - FIXED */}
-                <TableHead className="sticky left-0 z-30 bg-white border-r border-gray-200 w-[80px] px-6 text-gray-500 text-xs font-medium">
-                  <div className="flex justify-center">
+                {/* Sticky Checkbox - NO GAP */}
+                <TableHead className="sticky left-0 z-30 bg-white w-[80px] text-gray-500 text-xs font-medium shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                  <div className="flex justify-center px-6">
                     <Checkbox
                       checked={
                         vendors.length > 0 &&
@@ -239,8 +255,8 @@ export default function VendorTable() {
                   </div>
                 </TableHead>
 
-                {/* Sticky Vendor Column - FIXED BORDER */}
-                <TableHead className="sticky left-[80px] z-30 bg-white text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[250px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                {/* Sticky Vendor - WITH VISIBLE BORDER */}
+                <TableHead className="sticky left-[80px] z-30 bg-white text-gray-500 text-xs font-medium min-w-[250px] border-r-2 border-gray-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                   <button
                     onClick={() => handleSort("name")}
                     className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded w-full cursor-pointer"
@@ -411,8 +427,8 @@ export default function VendorTable() {
                   Rate Vendor 1-10
                 </TableHead>
 
-                {/* Sticky Kebab Menu - FIXED BORDER */}
-                <TableHead className="sticky right-0 z-30 bg-white w-[60px] border-l border-gray-200 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-500 text-xs font-medium"></TableHead>
+                {/* Sticky Kebab - WITH VISIBLE BORDER */}
+                <TableHead className="sticky right-0 z-30 bg-white w-[60px] border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-500 text-xs font-medium"></TableHead>
               </TableRow>
             </TableHeader>
 
@@ -420,12 +436,12 @@ export default function VendorTable() {
               {loading ? (
                 [...Array(8)].map((_, i) => (
                   <TableRow key={i} className="border-b border-gray-100">
-                    <TableCell className="sticky left-0 z-20 bg-white border-r border-gray-200 px-6">
-                      <div className="flex justify-center">
+                    <TableCell className="sticky left-0 z-20 bg-white shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                      <div className="flex justify-center px-6">
                         <div className="w-4 h-4 rounded bg-gray-200 animate-pulse" />
                       </div>
                     </TableCell>
-                    <TableCell className="sticky left-[80px] z-20 bg-white border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                    <TableCell className="sticky left-[80px] z-20 bg-white border-r-2 border-gray-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
                         <div className="space-y-2 flex-1">
@@ -440,7 +456,7 @@ export default function VendorTable() {
                     >
                       <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
                     </TableCell>
-                    <TableCell className="sticky right-0 z-20 bg-white border-l border-gray-200 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]" />
+                    <TableCell className="sticky right-0 z-20 bg-white border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]" />
                   </TableRow>
                 ))
               ) : vendors.length === 0 ? (
@@ -482,13 +498,13 @@ export default function VendorTable() {
                     >
                       {/* Sticky Checkbox */}
                       <TableCell
-                        className={`sticky left-0 z-20 border-r border-gray-200 cursor-pointer px-6 ${
+                        className={`sticky left-0 z-20 cursor-pointer shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
                           isSelected
                             ? "bg-green-50 group-hover:bg-green-50"
                             : "bg-white group-hover:bg-gray-50"
                         }`}
                       >
-                        <div className="flex justify-center">
+                        <div className="flex justify-center px-6">
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => handleRowSelect(vendor.id)}
@@ -498,7 +514,7 @@ export default function VendorTable() {
 
                       {/* Sticky Vendor */}
                       <TableCell
-                        className={`sticky left-[80px] z-20 border-r border-gray-200 cursor-pointer shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
+                        className={`sticky left-[80px] z-20 cursor-pointer border-r-2 border-gray-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
                           isSelected
                             ? "bg-green-50 group-hover:bg-green-50"
                             : "bg-white group-hover:bg-gray-50"
@@ -674,7 +690,7 @@ export default function VendorTable() {
 
                       {/* Sticky Kebab Menu */}
                       <TableCell
-                        className={`sticky right-0 z-20 cursor-pointer border-l border-gray-200 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
+                        className={`sticky right-0 z-20 cursor-pointer border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
                           isSelected
                             ? "bg-green-50 group-hover:bg-green-50"
                             : "bg-white group-hover:bg-gray-50"
@@ -689,18 +705,19 @@ export default function VendorTable() {
             </TableBody>
           </Table>
         </div>
+
+        {/* Pagination - Fixed at bottom of table */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={totalCount}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+        />
       </div>
 
-      {/* Results count */}
-      {totalCount > 0 && (
-        <div className="text-sm text-gray-500 text-center">
-          1–{Math.min(100, totalCount)} of {totalCount} matching vendors
-        </div>
-      )}
-
-      {/* Bottom Selection Bar */}
+      {/* Bottom Selection Bar - Covers pagination */}
       {selectedRows.size > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-[#E8E4DA] border-t border-gray-300 py-3 px-6 z-40">
+        <div className="fixed bottom-0 left-0 right-0 bg-[#E8E4DA] border-t border-gray-300 py-3 px-6 z-50">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
