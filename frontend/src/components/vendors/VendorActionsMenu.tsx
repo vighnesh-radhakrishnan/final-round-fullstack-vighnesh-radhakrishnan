@@ -13,6 +13,7 @@ type VendorActionsMenuProps = {
   onEditDepartment?: (id: number) => void;
 };
 
+// Kebab Menu Select Component
 export function VendorActionsMenu({}: VendorActionsMenuProps = {}) {
   return (
     <DropdownMenu>

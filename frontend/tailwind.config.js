@@ -76,4 +76,13 @@ export default {
     },
   },
   plugins: [tailwindcssAnimate],
+  safelist: [
+    "left-0",
+    "left-[80px]",
+    "right-0",
+    "border-r",
+    "border-r-2",
+    "border-l",
+    "border-l-2",
+  ],
 };

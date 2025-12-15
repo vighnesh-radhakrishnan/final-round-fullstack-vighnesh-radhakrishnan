@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Grid3x3, Download } from "lucide-react";
 import VendorTable from "./VendorTable";
 import NewVendorModal from "./NewVendorModal";
 
@@ -12,6 +11,7 @@ export default function VendorsPage() {
     setRefreshKey((prev) => prev + 1);
   };
 
+  // Main Vendor Page Component
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -59,11 +59,11 @@ export default function VendorsPage() {
       </div>
 
       {/* Main Content */}
-      <main className="px-6 py-6">
+      <main>
         <VendorTable key={refreshKey} />
       </main>
 
-      {/* New Vendor Sheet */}
+      {/* New Vendor Modal */}
       <NewVendorModal
         open={isNewVendorOpen}
         onOpenChange={setIsNewVendorOpen}

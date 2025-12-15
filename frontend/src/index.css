@@ -23,7 +23,7 @@
   }
 }
 
-/* Dropdown Menu Styling - Match Ramp Design */
+/* Drop Down Menu Styling */
 [data-radix-dropdown-menu-content] {
   background: white !important;
   border: 1px solid #e5e7eb !important;
@@ -47,26 +47,120 @@
   background-color: #f3f4f6 !important;
 }
 
-/* Make horizontal scrollbar always visible */
-.overflow-x-scroll::-webkit-scrollbar {
-  height: 12px;
+/* Scroll bar styling (Chrome, Safari, Edge) */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 11px;
 }
 
-.overflow-x-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #fcfbfa;
 }
 
-.overflow-x-scroll::-webkit-scrollbar-thumb {
-  background: #888;
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #d1d5db;
   border-radius: 6px;
 }
 
-.overflow-x-scroll::-webkit-scrollbar-thumb:hover {
-  background: #555;
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
-/* For Firefox */
-.overflow-x-scroll {
+/* Firefox */
+.overflow-x-auto {
   scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
+  scrollbar-color: #d1d5db #fcfbfa;
+}
+
+/* Vendor Table Fix */
+/* Target by nth-child (most reliable, works in all browsers) */
+
+/* First column (Checkbox) - Force padding and border */
+thead tr th:nth-child(1),
+tbody tr td:nth-child(1) {
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+  border-right: 1px solid #d1d5db !important;
+  background-color: white !important;
+}
+
+/* Second column (Vendor) - Force 2px border */
+thead tr th:nth-child(2),
+tbody tr td:nth-child(2) {
+  border-right: 2px solid #d1d5db !important;
+  background-color: white !important;
+}
+
+/* Last column (Kebab) - Force border and padding */
+thead tr th:last-child,
+tbody tr td:last-child {
+  border-left: 2px solid #d1d5db !important;
+  padding-right: 1.5rem !important;
+  background-color: white !important;
+}
+
+/* Prevent content bleeding behind sticky columns */
+thead tr th:nth-child(1)::after,
+tbody tr td:nth-child(1)::after,
+thead tr th:nth-child(2)::after,
+tbody tr td:nth-child(2)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -5px;
+  bottom: 0;
+  width: 5px;
+  background-color: inherit;
+  pointer-events: none;
+}
+
+/* Ensure sticky positioning works */
+thead tr th:nth-child(1),
+tbody tr td:nth-child(1) {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 20 !important;
+}
+
+thead tr th:nth-child(2),
+tbody tr td:nth-child(2) {
+  position: sticky !important;
+  left: 65px !important;
+  z-index: 20 !important;
+}
+
+thead tr th:last-child,
+tbody tr td:last-child {
+  position: sticky !important;
+  right: 0 !important;
+  z-index: 20 !important;
+}
+
+/* Header cells get higher z-index */
+thead tr th {
+  z-index: 30 !important;
+}
+
+/* Green background for selected rows */
+tbody tr.bg-green-50 td:nth-child(1),
+tbody tr.bg-green-50 td:nth-child(2),
+tbody tr.bg-green-50 td:last-child {
+  background-color: #f0fdf4 !important;
+}
+
+/* Hover state for selected rows */
+tbody tr.bg-green-50:hover td:nth-child(1),
+tbody tr.bg-green-50:hover td:nth-child(2),
+tbody tr.bg-green-50:hover td:last-child {
+  background-color: #f0fdf4 !important;
+}
+
+/* Hover state for non-selected rows */
+tbody tr:not(.bg-green-50):hover td:nth-child(1),
+tbody tr:not(.bg-green-50):hover td:nth-child(2),
+tbody tr:not(.bg-green-50):hover td:last-child {
+  background-color: #f9fafb !important;
+}
+[data-radix-select-content],
+[data-radix-select-viewport] {
+  @apply bg-white;
 }
