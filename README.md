@@ -29,6 +29,7 @@ A full-stack vendor management application recreating core functionality from Ra
     │   ├── types/           # TypeScript type definitions
     │   └── hooks/           # Custom hooks (debounce)
     |   └── utils/           # Formatting utilities
+    |   └── constants/       # For Constant variables
     └── package.json         # Node dependencies
 
 ```
@@ -48,6 +49,7 @@ A full-stack vendor management application recreating core functionality from Ra
 - Real-time table updates after vendor creation
 - Bottom panel on check box selection with functioning deselect all feature
 - Simplified New Vendor Form panel that takes basic info and creates a new vendor data to the table (redirects to vendor page after creation as required)
+- Added EditVendorModal to support editing status, department, and owner
 
 ### Intentionally Omitted (As Per Requirements)
 
@@ -187,9 +189,7 @@ The vendor table displays all columns from Ramp's interface. Columns with unavai
 
 The vendor creation panel uses a simplified single-step form instead of Ramp's multi-step workflow, collecting basic vendor information with dropdown selections for payment and tax details (Not a full copy of original Ramp experience).
 
-The Kebab Menu on the vendor table doesn't support edit features (edit status, owner and department - visual only) (dialog box for editing value to be added)
-
-## Author
+The current scrolling experience is incorrect; the vendor section should scroll independently, with the table header remaining fixed.## Author
 
 Vighnesh Radhakrishnan
 
