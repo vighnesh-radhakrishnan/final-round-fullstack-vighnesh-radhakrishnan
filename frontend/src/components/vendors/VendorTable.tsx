@@ -9,14 +9,18 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import {
   MoreHorizontal,
-  FileText,
   Search,
   X,
   ArrowUp,
   ArrowDown,
+  Grid3x3,
+  Download,
+  AlignJustify,
+  Upload,
+  Edit2,
+  CheckCircle2,
 } from "lucide-react";
 import type { Vendor } from "@/types/vendor";
 import { vendorApi } from "@/services/api";
@@ -28,17 +32,16 @@ export default function VendorTable() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [totalCount, setTotalCount] = useState(0);
-
-  // debounce search term
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
-
-  // sort states
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
+  const [hoveredOwnerId, setHoveredOwnerId] = useState<number | null>(null);
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     fetchVendors();
-  }, [debouncedSearchTerm, sortBy, sortOrder]); // re-fetch when search is updated
+  }, [debouncedSearchTerm, sortBy, sortOrder]);
 
   const fetchVendors = async () => {
     try {
@@ -59,13 +62,10 @@ export default function VendorTable() {
     }
   };
 
-  // Add sorting handler
   const handleSort = (column: string) => {
     if (sortBy === column) {
-      // Toggle sort order if same column
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      // New column, default to ascending
       setSortBy(column);
       setSortOrder("asc");
     }
@@ -73,6 +73,24 @@ export default function VendorTable() {
 
   const handleClearSearch = () => {
     setSearchTerm("");
+  };
+
+  const handleRowSelect = (vendorId: number) => {
+    const newSelected = new Set(selectedRows);
+    if (newSelected.has(vendorId)) {
+      newSelected.delete(vendorId);
+    } else {
+      newSelected.add(vendorId);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedRows.size === vendors.length) {
+      setSelectedRows(new Set());
+    } else {
+      setSelectedRows(new Set(vendors.map((v) => v.id)));
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -92,23 +110,6 @@ export default function VendorTable() {
     }).format(date);
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<
-      string,
-      "default" | "secondary" | "destructive" | "outline"
-    > = {
-      active: "default",
-      pending: "secondary",
-      inactive: "outline",
-    };
-
-    return (
-      <Badge variant={variants[status] || "default"} className="capitalize">
-        {status}
-      </Badge>
-    );
-  };
-
   const getPaymentMethodDisplay = (method: string | null) => {
     if (!method) return "—";
 
@@ -124,7 +125,7 @@ export default function VendorTable() {
 
   if (error) {
     return (
-      <div className="border rounded-lg bg-white">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="flex flex-col items-center justify-center py-12 px-6">
           <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
             <svg
@@ -161,426 +162,556 @@ export default function VendorTable() {
 
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between">
+        {/* Search */}
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             type="text"
             placeholder="Search or filter..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 pr-9"
+            className="h-8 rounded-full pl-9 pr-9 text-sm border-gray-300 w-64"
           />
           {searchTerm && (
             <button
               onClick={handleClearSearch}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
 
-        {/* Results count */}
-        {searchTerm && (
-          <div className="text-sm text-gray-600">
-            {loading
-              ? "Searching..."
-              : `${totalCount} result${totalCount !== 1 ? "s" : ""}`}
-          </div>
-        )}
+        {/* Action Icons */}
+        <div className="flex items-center gap-2">
+          <button
+            className="p-2 hover:bg-gray-100 rounded-full border border-gray-900"
+            title="Group by"
+          >
+            <AlignJustify className="h-4 w-4 text-gray-600" />
+          </button>
+          <button
+            className="p-2 hover:bg-gray-100 rounded-full border border-gray-900"
+            title="Customize columns"
+          >
+            <Grid3x3 className="h-4 w-4 text-gray-600" />
+          </button>
+          <button
+            className="p-2 hover:bg-gray-100 rounded-full border border-gray-900"
+            title="Export"
+          >
+            <Download className="h-4 w-4 text-gray-600" />
+          </button>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="border rounded-lg bg-white">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50 hover:bg-gray-50">
-              <TableHead className="w-12">
-                <Checkbox />
-              </TableHead>
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-gray-200 hover:bg-transparent">
+                {/* Sticky Checkbox Column */}
+                <TableHead className="sticky left-0 z-20 bg-white border-r border-gray-200 w-12">
+                  <Checkbox
+                    className="ml-2"
+                    checked={
+                      vendors.length > 0 && selectedRows.size === vendors.length
+                    }
+                    onCheckedChange={handleSelectAll}
+                  />
+                </TableHead>
 
-              {/* Sortable: Vendor */}
-              <TableHead className="hover:bg-[rgb(252,251,250)] cursor-pointer transition-colors">
-                <button
-                  onClick={() => handleSort("name")}
-                  className="flex items-center gap-1 font-medium w-full"
-                >
-                  Vendor
-                  {sortBy === "name" &&
-                    (sortOrder === "asc" ? (
-                      <ArrowUp className="h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4" />
-                    ))}
-                </button>
-              </TableHead>
+                {/* Sticky Vendor Column */}
+                <TableHead className="sticky left-12 z-20 bg-white font-medium text-gray-700 border-r border-gray-200 min-w-[250px]">
+                  <button
+                    onClick={() => handleSort("name")}
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded w-full"
+                  >
+                    Vendor
+                    {sortBy === "name" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      ))}
+                  </button>
+                </TableHead>
 
-              {/* Non-sortable: Owners */}
-              <TableHead>Owners</TableHead>
+                {/* Scrollable Columns */}
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                  Owners
+                </TableHead>
 
-              {/* Sortable: 365-day spend */}
-              <TableHead className="text-right hover:bg-[rgb(252,251,250)] cursor-pointer transition-colors">
-                <button
-                  onClick={() => handleSort("total_spend")}
-                  className="flex items-center gap-1 font-medium ml-auto w-full justify-end"
-                >
-                  365-day spend
-                  {sortBy === "total_spend" &&
-                    (sortOrder === "asc" ? (
-                      <ArrowUp className="h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4" />
-                    ))}
-                </button>
-              </TableHead>
+                <TableHead className="font-medium text-gray-700 text-right border-r border-gray-200 min-w-[150px]">
+                  <button
+                    onClick={() => handleSort("total_spend")}
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded ml-auto"
+                  >
+                    365-day spend
+                    {sortBy === "total_spend" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      ))}
+                  </button>
+                </TableHead>
 
-              {/* Sortable: 30-day spend */}
-              <TableHead className="text-right hover:bg-[rgb(252,251,250)] cursor-pointer transition-colors">
-                <button
-                  onClick={() => handleSort("thirty_day_spend")}
-                  className="flex items-center gap-1 font-medium ml-auto w-full justify-end"
-                >
-                  30-day spend
-                  {sortBy === "thirty_day_spend" &&
-                    (sortOrder === "asc" ? (
-                      <ArrowUp className="h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4" />
-                    ))}
-                </button>
-              </TableHead>
+                <TableHead className="font-medium text-gray-700 text-right border-r border-gray-200 min-w-[150px]">
+                  <button
+                    onClick={() => handleSort("thirty_day_spend")}
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded ml-auto"
+                  >
+                    30-day spend
+                    {sortBy === "thirty_day_spend" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      ))}
+                  </button>
+                </TableHead>
 
-              {/* Non-sortable: Description */}
-              <TableHead>Description</TableHead>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                  Description
+                </TableHead>
 
-              {/* Sortable: Department */}
-              <TableHead className="hover:bg-[rgb(252,251,250)] cursor-pointer transition-colors">
-                <button
-                  onClick={() => handleSort("department")}
-                  className="flex items-center gap-1 font-medium w-full"
-                >
-                  Department
-                  {sortBy === "department" &&
-                    (sortOrder === "asc" ? (
-                      <ArrowUp className="h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4" />
-                    ))}
-                </button>
-              </TableHead>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                  <button
+                    onClick={() => handleSort("department")}
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded"
+                  >
+                    Department
+                    {sortBy === "department" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      ))}
+                  </button>
+                </TableHead>
 
-              {/* Non-sortable: Contract */}
-              <TableHead>Contract</TableHead>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[120px]">
+                  Contract
+                </TableHead>
 
-              {/* Non-sortable: Vendor owner location */}
-              <TableHead>Vendor owner location</TableHead>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                  Vendor owner location
+                </TableHead>
 
-              {/* Sortable: Creation date */}
-              <TableHead className="hover:bg-[rgb(252,251,250)] cursor-pointer transition-colors">
-                <button
-                  onClick={() => handleSort("creation_date")}
-                  className="flex items-center gap-1 font-medium w-full"
-                >
-                  Creation date
-                  {sortBy === "creation_date" &&
-                    (sortOrder === "asc" ? (
-                      <ArrowUp className="h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4" />
-                    ))}
-                </button>
-              </TableHead>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                  <button
+                    onClick={() => handleSort("creation_date")}
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded"
+                  >
+                    Creation date
+                    {sortBy === "creation_date" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      ))}
+                  </button>
+                </TableHead>
 
-              {/* Non-sortable: Payment type */}
-              <TableHead>Payment type</TableHead>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[130px]">
+                  Payment type
+                </TableHead>
 
-              {/* Sortable: Vendor status */}
-              <TableHead className="hover:bg-[rgb(252,251,250)] cursor-pointer transition-colors">
-                <button
-                  onClick={() => handleSort("status")}
-                  className="flex items-center gap-1 font-medium w-full"
-                >
-                  Vendor status
-                  {sortBy === "status" &&
-                    (sortOrder === "asc" ? (
-                      <ArrowUp className="h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4" />
-                    ))}
-                </button>
-              </TableHead>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                  <button
+                    onClick={() => handleSort("status")}
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded"
+                  >
+                    Vendor status
+                    {sortBy === "status" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      ))}
+                  </button>
+                </TableHead>
 
-              {/* Non-sortable columns (currently dont have this data) */}
-              <TableHead>Default contact</TableHead>
-              <TableHead>Tax details</TableHead>
-              <TableHead>Tax verification</TableHead>
-              <TableHead>1099 vendor (2025)</TableHead>
-              <TableHead>1099 vendor (2024)</TableHead>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                  Default contact
+                </TableHead>
 
-              {/* Sortable: Contract start */}
-              <TableHead className="hover:bg-[rgb(252,251,250)] cursor-pointer transition-colors">
-                <button
-                  onClick={() => handleSort("contract_start")}
-                  className="flex items-center gap-1 font-medium w-full"
-                >
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                  Tax details
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                  Tax verification
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                  1099 vendor (2025)
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                  1099 vendor (2024)
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
                   Contract start
-                  {sortBy === "contract_start" &&
-                    (sortOrder === "asc" ? (
-                      <ArrowUp className="h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4" />
-                    ))}
-                </button>
-              </TableHead>
+                </TableHead>
 
-              {/* Sortable: Contract end */}
-              <TableHead className="hover:bg-[rgb(252,251,250)] cursor-pointer transition-colors">
-                <button
-                  onClick={() => handleSort("contract_end")}
-                  className="flex items-center gap-1 font-medium w-full"
-                >
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
                   Contract end
-                  {sortBy === "contract_end" &&
-                    (sortOrder === "asc" ? (
-                      <ArrowUp className="h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4" />
-                    ))}
-                </button>
-              </TableHead>
+                </TableHead>
 
-              {/* Non-sortable remaining columns */}
-              <TableHead>Last date to terminate</TableHead>
-              <TableHead>Net payment terms</TableHead>
-              <TableHead>SOC Reports</TableHead>
-              <TableHead>COI</TableHead>
-              <TableHead>Company Website Link</TableHead>
-              <TableHead>Service based vendor?</TableHead>
-              <TableHead>COI Expiration Date</TableHead>
-              <TableHead>Rate Vendor 1-10</TableHead>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                  Last date to terminate
+                </TableHead>
 
-              <TableHead className="w-12"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              [...Array(5)].map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell colSpan={27} className="py-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-gray-200 rounded animate-pulse w-1/4" />
-                        <div className="h-3 bg-gray-200 rounded animate-pulse w-1/6" />
-                      </div>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : vendors.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={27} className="text-center py-12">
-                  <div className="flex flex-col items-center">
-                    <Search className="h-12 w-12 text-gray-300 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      No vendors found
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {searchTerm
-                        ? `No results for "${searchTerm}". Try a different search term.`
-                        : "No vendors available."}
-                    </p>
-                    {searchTerm && (
-                      <button
-                        onClick={handleClearSearch}
-                        className="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium"
-                      >
-                        Clear search
-                      </button>
-                    )}
-                  </div>
-                </TableCell>
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                  Net payment terms
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                  SOC Reports
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[120px]">
+                  COI
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                  Company Website Link
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[200px]">
+                  Service based vendor?
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                  COI Expiration Date
+                </TableHead>
+
+                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                  Rate Vendor 1-10
+                </TableHead>
+
+                {/* Sticky Kebab Menu Column */}
+                <TableHead className="sticky right-0 z-20 bg-white w-12"></TableHead>
               </TableRow>
-            ) : (
-              vendors.map((vendor) => (
-                <TableRow key={vendor.id} className="hover:bg-gray-50">
-                  <TableCell>
-                    <Checkbox />
-                  </TableCell>
+            </TableHeader>
 
-                  {/* Vendor */}
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-sm font-semibold text-blue-700">
-                        {vendor.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-medium">{vendor.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {vendor.category || "—"}
+            <TableBody>
+              {loading ? (
+                [...Array(8)].map((_, i) => (
+                  <TableRow key={i} className="border-b border-gray-100">
+                    <TableCell className="sticky left-0 z-10 bg-white border-r border-gray-200">
+                      <div className="w-4 h-4 rounded bg-gray-200 animate-pulse ml-2" />
+                    </TableCell>
+                    <TableCell className="sticky left-12 z-10 bg-white border-r border-gray-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+                        <div className="space-y-2 flex-1">
+                          <div className="h-4 bg-gray-200 rounded animate-pulse w-32" />
+                          <div className="h-3 bg-gray-200 rounded animate-pulse w-24" />
                         </div>
                       </div>
+                    </TableCell>
+                    <TableCell
+                      colSpan={25}
+                      className="border-r border-gray-200"
+                    >
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
+                    </TableCell>
+                    <TableCell className="sticky right-0 z-10 bg-white" />
+                  </TableRow>
+                ))
+              ) : vendors.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={28} className="text-center py-12">
+                    <div className="flex flex-col items-center">
+                      <Search className="h-12 w-12 text-gray-300 mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        No vendors found
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {searchTerm
+                          ? `No results for "${searchTerm}". Try a different search term.`
+                          : "No vendors available."}
+                      </p>
+                      {searchTerm && (
+                        <button
+                          onClick={handleClearSearch}
+                          className="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          Clear search
+                        </button>
+                      )}
                     </div>
                   </TableCell>
-
-                  {/* Owners */}
-                  <TableCell>
-                    {vendor.owner ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs">
-                          {vendor.owner.charAt(0).toUpperCase()}
-                        </div>
-                        <span className="text-sm">{vendor.owner}</span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </TableCell>
-
-                  {/* 365-day spend */}
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(vendor.total_spend)}
-                  </TableCell>
-
-                  {/* 30-day spend */}
-                  <TableCell className="text-right text-gray-600">
-                    {formatCurrency(vendor.thirty_day_spend)}
-                  </TableCell>
-
-                  {/* Description */}
-                  <TableCell className="text-sm text-gray-600">
-                    {vendor.category || "—"}
-                  </TableCell>
-
-                  {/* Department */}
-                  <TableCell>
-                    {vendor.department || (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </TableCell>
-
-                  {/* Contract */}
-                  <TableCell>
-                    <button className="text-gray-400 hover:text-gray-600">
-                      <FileText className="h-4 w-4" />
-                    </button>
-                  </TableCell>
-
-                  {/* Vendor owner location */}
-                  <TableCell>
-                    {vendor.location || (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </TableCell>
-
-                  {/* Creation date */}
-                  <TableCell className="text-sm text-gray-600">
-                    {formatDate(vendor.creation_date)}
-                  </TableCell>
-
-                  {/* Payment type */}
-                  <TableCell className="text-sm text-gray-600">
-                    {getPaymentMethodDisplay(vendor.payment_method)}
-                  </TableCell>
-
-                  {/* Vendor status */}
-                  <TableCell>{getStatusBadge(vendor.status)}</TableCell>
-
-                  {/* Default contact */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* Tax details */}
-                  <TableCell>
-                    <span className="text-sm text-gray-600">
-                      {vendor.tax_details_submitted || "—"}
-                    </span>
-                  </TableCell>
-
-                  {/* Tax verification */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* 1099 vendor (2025) */}
-                  <TableCell>
-                    <span className="text-sm text-gray-600">
-                      {vendor.vendor_1099_2025 || "—"}
-                    </span>
-                  </TableCell>
-
-                  {/* 1099 vendor (2024) */}
-                  <TableCell>
-                    <span className="text-sm text-gray-600">
-                      {vendor.vendor_1099_2024 || "—"}
-                    </span>
-                  </TableCell>
-
-                  {/* Contract start */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* Contract end */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* Last date to terminate */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* Net payment terms */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* SOC Reports */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* COI */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* Company Website Link */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* Service based vendor? */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* COI Expiration Date */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* Rate Vendor 1-10 */}
-                  <TableCell>
-                    <span className="text-gray-400">—</span>
-                  </TableCell>
-
-                  {/* Menu */}
-                  <TableCell>
-                    <button className="text-gray-400 hover:text-gray-600">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </button>
-                  </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                vendors.map((vendor) => {
+                  const isSelected = selectedRows.has(vendor.id);
+                  return (
+                    <TableRow
+                      key={vendor.id}
+                      className={`border-b border-gray-100 hover:bg-gray-50 ${
+                        isSelected ? "bg-green-50" : ""
+                      }`}
+                    >
+                      {/* Sticky Checkbox */}
+                      <TableCell
+                        className={`sticky left-0 z-10 border-r border-gray-200 ${
+                          isSelected ? "bg-green-50" : "bg-white"
+                        }`}
+                      >
+                        <Checkbox
+                          className="ml-2"
+                          checked={isSelected}
+                          onCheckedChange={() => handleRowSelect(vendor.id)}
+                        />
+                      </TableCell>
+
+                      {/* Sticky Vendor */}
+                      <TableCell
+                        className={`sticky left-12 z-10 border-r border-gray-200 ${
+                          isSelected ? "bg-green-50" : "bg-white"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-sm font-semibold text-white flex-shrink-0">
+                            {vendor.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-medium text-gray-900 truncate">
+                              {vendor.name}
+                            </div>
+                            <div className="text-xs text-gray-500 truncate">
+                              {vendor.category || "—"}
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      {/* Owners with hover edit */}
+                      <TableCell
+                        className="border-r border-gray-200 relative"
+                        onMouseEnter={() => setHoveredOwnerId(vendor.id)}
+                        onMouseLeave={() => setHoveredOwnerId(null)}
+                      >
+                        {vendor.owner ? (
+                          <div className="flex items-center gap-2 justify-between">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <div className="w-6 h-6 rounded-full bg-pink-200 flex items-center justify-center text-xs font-medium flex-shrink-0">
+                                {vendor.owner
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .toUpperCase()}
+                              </div>
+                              <span className="text-sm truncate">
+                                {vendor.owner}
+                              </span>
+                            </div>
+                            {hoveredOwnerId === vendor.id && (
+                              <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                                <Edit2 className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </TableCell>
+
+                      {/* 365-day spend */}
+                      <TableCell className="text-right font-medium border-r border-gray-200">
+                        {formatCurrency(vendor.total_spend)}
+                      </TableCell>
+
+                      {/* 30-day spend */}
+                      <TableCell className="text-right text-gray-600 border-r border-gray-200">
+                        {formatCurrency(vendor.thirty_day_spend)}
+                      </TableCell>
+
+                      {/* Description with edit */}
+                      <TableCell className="border-r border-gray-200">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm text-gray-600 truncate">
+                            {vendor.category || "—"}
+                          </span>
+                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </TableCell>
+
+                      {/* Department */}
+                      <TableCell className="border-r border-gray-200">
+                        {vendor.department || (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </TableCell>
+
+                      {/* Contract with share icon */}
+                      <TableCell className="border-r border-gray-200">
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <Upload className="h-4 w-4" />
+                        </button>
+                      </TableCell>
+
+                      {/* Vendor owner location */}
+                      <TableCell className="border-r border-gray-200">
+                        {vendor.location || (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </TableCell>
+
+                      {/* Creation date */}
+                      <TableCell className="text-sm text-gray-600 border-r border-gray-200">
+                        {formatDate(vendor.creation_date)}
+                      </TableCell>
+
+                      {/* Payment type */}
+                      <TableCell className="text-sm text-gray-600 border-r border-gray-200">
+                        {getPaymentMethodDisplay(vendor.payment_method)}
+                      </TableCell>
+
+                      {/* Vendor status with icon and edit */}
+                      <TableCell className="border-r border-gray-200">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                          <span className="text-sm capitalize">
+                            {vendor.status}
+                          </span>
+                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </TableCell>
+
+                      {/* Default contact */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* Tax details with edit */}
+                      <TableCell className="border-r border-gray-200">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm text-gray-600">
+                            {vendor.tax_details_submitted || "—"}
+                          </span>
+                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </TableCell>
+
+                      {/* Tax verification */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* 1099 vendor (2025) with edit */}
+                      <TableCell className="border-r border-gray-200">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm text-gray-600">
+                            {vendor.vendor_1099_2025 || "—"}
+                          </span>
+                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </TableCell>
+
+                      {/* 1099 vendor (2024) with edit */}
+                      <TableCell className="border-r border-gray-200">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm text-gray-600">
+                            {vendor.vendor_1099_2024 || "—"}
+                          </span>
+                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </TableCell>
+
+                      {/* Contract start */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* Contract end */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* Last date to terminate */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* Net payment terms */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* SOC Reports */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* COI */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* Company Website Link */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* Service based vendor? */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* COI Expiration Date */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* Rate Vendor 1-10 */}
+                      <TableCell className="border-r border-gray-200">
+                        <span className="text-gray-400">—</span>
+                      </TableCell>
+
+                      {/* Sticky Kebab Menu */}
+                      <TableCell
+                        className={`sticky right-0 z-10 ${
+                          isSelected ? "bg-green-50" : "bg-white"
+                        }`}
+                      >
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
+
+      {/* Results count */}
+      {totalCount > 0 && (
+        <div className="text-sm text-gray-500 text-center">
+          1–{Math.min(100, totalCount)} of {totalCount} matching vendors
+        </div>
+      )}
     </div>
   );
 }
