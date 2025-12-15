@@ -20,17 +20,17 @@ import { vendorApi } from "@/services/api";
 import { VendorStatus } from "@/types/vendor";
 import type { CreateVendorRequest } from "@/types/vendor";
 
-interface NewVendorModalProps {
+interface NewVendorSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onVendorCreated: () => void;
 }
 
-export default function NewVendorModal({
+export default function NewVendorSheet({
   open,
   onOpenChange,
   onVendorCreated,
-}: NewVendorModalProps) {
+}: NewVendorSheetProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentOption, setPaymentOption] = useState<string>("request");
@@ -93,8 +93,8 @@ export default function NewVendorModal({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto p-0 flex flex-col">
-        <div className="p-6 pb-0">
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto p-0 flex flex-col bg-white">
+        <div className="p-6 pb-0 bg-white">
           <SheetHeader>
             <SheetTitle className="text-2xl font-normal">New vendor</SheetTitle>
             <SheetDescription className="text-base">
@@ -103,8 +103,8 @@ export default function NewVendorModal({
           </SheetHeader>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-          <div className="flex-1 px-6 pb-6 space-y-6 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col bg-white">
+          <div className="flex-1 px-6 pb-6 space-y-6 overflow-y-auto bg-white">
             {/* Vendor Name */}
             <div className="space-y-2 mt-6">
               <Label htmlFor="name" className="text-sm font-normal">

@@ -19,12 +19,13 @@ import {
   Download,
   AlignJustify,
   Upload,
-  Edit2,
+  PenSquare,
   CheckCircle2,
 } from "lucide-react";
 import type { Vendor } from "@/types/vendor";
 import { vendorApi } from "@/services/api";
 import { useDebounce } from "@/hooks/useDebounce";
+import { VendorActionsMenu } from "./VendorActionsMenu";
 
 export default function VendorTable() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -184,26 +185,34 @@ export default function VendorTable() {
           )}
         </div>
 
-        {/* Action Icons */}
+        {/* Action Icons with proper tooltips */}
         <div className="flex items-center gap-2">
-          <button
-            className="p-2 hover:bg-gray-100 rounded-full border border-gray-900"
-            title="Group by"
-          >
-            <AlignJustify className="h-4 w-4 text-gray-600" />
-          </button>
-          <button
-            className="p-2 hover:bg-gray-100 rounded-full border border-gray-900"
-            title="Customize columns"
-          >
-            <Grid3x3 className="h-4 w-4 text-gray-600" />
-          </button>
-          <button
-            className="p-2 hover:bg-gray-100 rounded-full border border-gray-900"
-            title="Export"
-          >
-            <Download className="h-4 w-4 text-gray-600" />
-          </button>
+          <div className="relative group">
+            <button className="p-1.5 hover:bg-gray-100 rounded-full border border-gray-400">
+              <AlignJustify className="h-3.5 w-3.5 text-gray-600" />
+            </button>
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-white border border-gray-300 text-gray-900 text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+              Group by
+            </div>
+          </div>
+
+          <div className="relative group">
+            <button className="p-1.5 hover:bg-gray-100 rounded-full border border-gray-400">
+              <Grid3x3 className="h-3.5 w-3.5 text-gray-600" />
+            </button>
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-white border border-gray-300 text-gray-900 text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+              Customize columns
+            </div>
+          </div>
+
+          <div className="relative group">
+            <button className="p-1.5 hover:bg-gray-100 rounded-full border border-gray-400">
+              <Download className="h-3.5 w-3.5 text-gray-600" />
+            </button>
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-white border border-gray-300 text-gray-900 text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+              Export
+            </div>
+          </div>
         </div>
       </div>
 
@@ -212,23 +221,25 @@ export default function VendorTable() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-gray-200 hover:bg-transparent">
+              <TableRow className="border-b border-gray-200">
                 {/* Sticky Checkbox Column */}
-                <TableHead className="sticky left-0 z-20 bg-white border-r border-gray-200 w-12">
-                  <Checkbox
-                    className="ml-2"
-                    checked={
-                      vendors.length > 0 && selectedRows.size === vendors.length
-                    }
-                    onCheckedChange={handleSelectAll}
-                  />
+                <TableHead className="sticky left-0 z-20 bg-white border-r border-gray-200 w-[60px] pr-10">
+                  <div className="flex justify-center">
+                    <Checkbox
+                      checked={
+                        vendors.length > 0 &&
+                        selectedRows.size === vendors.length
+                      }
+                      onCheckedChange={handleSelectAll}
+                    />
+                  </div>
                 </TableHead>
 
-                {/* Sticky Vendor Column */}
-                <TableHead className="sticky left-12 z-20 bg-white font-medium text-gray-700 border-r border-gray-200 min-w-[250px]">
+                {/* Sticky Vendor Column with RIGHT border */}
+                <TableHead className="sticky left-[60px] z-20 bg-white text-gray-600 text-xs font-medium border-r-2 border-gray-300 min-w-[250px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                   <button
                     onClick={() => handleSort("name")}
-                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded w-full"
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded w-full cursor-pointer"
                   >
                     Vendor
                     {sortBy === "name" &&
@@ -241,14 +252,14 @@ export default function VendorTable() {
                 </TableHead>
 
                 {/* Scrollable Columns */}
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer pl-10">
                   Owners
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 text-right border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium text-right border-r border-gray-200 min-w-[150px]">
                   <button
                     onClick={() => handleSort("total_spend")}
-                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded ml-auto"
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded ml-auto cursor-pointer"
                   >
                     365-day spend
                     {sortBy === "total_spend" &&
@@ -260,10 +271,10 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 text-right border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium text-right border-r border-gray-200 min-w-[150px]">
                   <button
                     onClick={() => handleSort("thirty_day_spend")}
-                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded ml-auto"
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded ml-auto cursor-pointer"
                   >
                     30-day spend
                     {sortBy === "thirty_day_spend" &&
@@ -275,14 +286,14 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   Description
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px]">
                   <button
                     onClick={() => handleSort("department")}
-                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded"
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer"
                   >
                     Department
                     {sortBy === "department" &&
@@ -294,18 +305,18 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[120px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[120px] cursor-pointer">
                   Contract
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   Vendor owner location
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px]">
                   <button
                     onClick={() => handleSort("creation_date")}
-                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded"
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer"
                   >
                     Creation date
                     {sortBy === "creation_date" &&
@@ -317,14 +328,14 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[130px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[130px] cursor-pointer">
                   Payment type
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px]">
                   <button
                     onClick={() => handleSort("status")}
-                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded"
+                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer"
                   >
                     Vendor status
                     {sortBy === "status" &&
@@ -336,68 +347,68 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Default contact
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Tax details
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Tax verification
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   1099 vendor (2025)
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   1099 vendor (2024)
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Contract start
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Contract end
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   Last date to terminate
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Net payment terms
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   SOC Reports
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[120px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[120px] cursor-pointer">
                   COI
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   Company Website Link
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[200px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[200px] cursor-pointer">
                   Service based vendor?
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   COI Expiration Date
                 </TableHead>
 
-                <TableHead className="font-medium text-gray-700 border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Rate Vendor 1-10
                 </TableHead>
 
-                {/* Sticky Kebab Menu Column */}
-                <TableHead className="sticky right-0 z-20 bg-white w-12"></TableHead>
+                {/* Sticky Kebab Menu Column with LEFT border */}
+                <TableHead className="sticky right-0 z-20 bg-white w-[60px] border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]"></TableHead>
               </TableRow>
             </TableHeader>
 
@@ -405,10 +416,12 @@ export default function VendorTable() {
               {loading ? (
                 [...Array(8)].map((_, i) => (
                   <TableRow key={i} className="border-b border-gray-100">
-                    <TableCell className="sticky left-0 z-10 bg-white border-r border-gray-200">
-                      <div className="w-4 h-4 rounded bg-gray-200 animate-pulse ml-2" />
+                    <TableCell className="sticky left-0 z-10 bg-white border-r border-gray-200 pr-10">
+                      <div className="flex justify-center">
+                        <div className="w-4 h-4 rounded bg-gray-200 animate-pulse" />
+                      </div>
                     </TableCell>
-                    <TableCell className="sticky left-12 z-10 bg-white border-r border-gray-200">
+                    <TableCell className="sticky left-[60px] z-10 bg-white border-r-2 border-gray-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
                         <div className="space-y-2 flex-1">
@@ -423,7 +436,7 @@ export default function VendorTable() {
                     >
                       <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
                     </TableCell>
-                    <TableCell className="sticky right-0 z-10 bg-white" />
+                    <TableCell className="sticky right-0 z-10 bg-white border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]" />
                   </TableRow>
                 ))
               ) : vendors.length === 0 ? (
@@ -453,30 +466,38 @@ export default function VendorTable() {
               ) : (
                 vendors.map((vendor) => {
                   const isSelected = selectedRows.has(vendor.id);
+
                   return (
                     <TableRow
                       key={vendor.id}
-                      className={`border-b border-gray-100 hover:bg-gray-50 ${
-                        isSelected ? "bg-green-50" : ""
+                      className={`border-b border-gray-100 group ${
+                        isSelected
+                          ? "bg-green-50 hover:bg-green-50"
+                          : "hover:bg-gray-50"
                       }`}
                     >
-                      {/* Sticky Checkbox */}
+                      {/* Sticky Checkbox - WITH HOVER */}
                       <TableCell
-                        className={`sticky left-0 z-10 border-r border-gray-200 ${
-                          isSelected ? "bg-green-50" : "bg-white"
+                        className={`sticky left-0 z-10 border-r border-gray-200 cursor-pointer pr-10 ${
+                          isSelected
+                            ? "bg-green-50 group-hover:bg-green-50"
+                            : "bg-white group-hover:bg-gray-50"
                         }`}
                       >
-                        <Checkbox
-                          className="ml-2"
-                          checked={isSelected}
-                          onCheckedChange={() => handleRowSelect(vendor.id)}
-                        />
+                        <div className="flex justify-center">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => handleRowSelect(vendor.id)}
+                          />
+                        </div>
                       </TableCell>
 
-                      {/* Sticky Vendor */}
+                      {/* Sticky Vendor - WITH HOVER */}
                       <TableCell
-                        className={`sticky left-12 z-10 border-r border-gray-200 ${
-                          isSelected ? "bg-green-50" : "bg-white"
+                        className={`sticky left-[60px] z-10 border-r-2 border-gray-300 cursor-pointer shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
+                          isSelected
+                            ? "bg-green-50 group-hover:bg-green-50"
+                            : "bg-white group-hover:bg-gray-50"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -496,7 +517,7 @@ export default function VendorTable() {
 
                       {/* Owners with hover edit */}
                       <TableCell
-                        className="border-r border-gray-200 relative"
+                        className="border-r border-gray-200 relative cursor-pointer pl-10"
                         onMouseEnter={() => setHoveredOwnerId(vendor.id)}
                         onMouseLeave={() => setHoveredOwnerId(null)}
                       >
@@ -515,8 +536,8 @@ export default function VendorTable() {
                               </span>
                             </div>
                             {hoveredOwnerId === vendor.id && (
-                              <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
-                                <Edit2 className="h-3.5 w-3.5" />
+                              <button className="text-gray-900 hover:text-gray-700 flex-shrink-0">
+                                <PenSquare className="h-4 w-4" />
                               </button>
                             )}
                           </div>
@@ -526,175 +547,188 @@ export default function VendorTable() {
                       </TableCell>
 
                       {/* 365-day spend */}
-                      <TableCell className="text-right font-medium border-r border-gray-200">
+                      <TableCell className="text-right font-medium border-r border-gray-200 cursor-pointer">
                         {formatCurrency(vendor.total_spend)}
                       </TableCell>
 
                       {/* 30-day spend */}
-                      <TableCell className="text-right text-gray-600 border-r border-gray-200">
+                      <TableCell className="text-right text-gray-600 border-r border-gray-200 cursor-pointer">
                         {formatCurrency(vendor.thirty_day_spend)}
                       </TableCell>
 
                       {/* Description with edit */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm text-gray-600 truncate">
                             {vendor.category || "—"}
                           </span>
-                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
-                            <Edit2 className="h-3.5 w-3.5" />
+                          <button className="text-gray-900 hover:text-gray-700 flex-shrink-0">
+                            <PenSquare className="h-4 w-4" />
                           </button>
                         </div>
                       </TableCell>
 
                       {/* Department */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         {vendor.department || (
                           <span className="text-gray-400">—</span>
                         )}
                       </TableCell>
 
                       {/* Contract with share icon */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <button className="text-gray-400 hover:text-gray-600">
                           <Upload className="h-4 w-4" />
                         </button>
                       </TableCell>
 
                       {/* Vendor owner location */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         {vendor.location || (
                           <span className="text-gray-400">—</span>
                         )}
                       </TableCell>
 
                       {/* Creation date */}
-                      <TableCell className="text-sm text-gray-600 border-r border-gray-200">
+                      <TableCell className="text-sm text-gray-600 border-r border-gray-200 cursor-pointer">
                         {formatDate(vendor.creation_date)}
                       </TableCell>
 
                       {/* Payment type */}
-                      <TableCell className="text-sm text-gray-600 border-r border-gray-200">
+                      <TableCell className="text-sm text-gray-600 border-r border-gray-200 cursor-pointer">
                         {getPaymentMethodDisplay(vendor.payment_method)}
                       </TableCell>
 
                       {/* Vendor status with icon and edit */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
                           <span className="text-sm capitalize">
                             {vendor.status}
                           </span>
-                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
-                            <Edit2 className="h-3.5 w-3.5" />
+                          <button className="text-gray-900 hover:text-gray-700 flex-shrink-0">
+                            <PenSquare className="h-4 w-4" />
                           </button>
                         </div>
                       </TableCell>
 
                       {/* Default contact */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* Tax details with edit */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm text-gray-600">
                             {vendor.tax_details_submitted || "—"}
                           </span>
-                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
-                            <Edit2 className="h-3.5 w-3.5" />
+                          <button className="text-gray-900 hover:text-gray-700 flex-shrink-0">
+                            <PenSquare className="h-4 w-4" />
                           </button>
                         </div>
                       </TableCell>
 
                       {/* Tax verification */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* 1099 vendor (2025) with edit */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm text-gray-600">
                             {vendor.vendor_1099_2025 || "—"}
                           </span>
-                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
-                            <Edit2 className="h-3.5 w-3.5" />
+                          <button className="text-gray-900 hover:text-gray-700 flex-shrink-0">
+                            <PenSquare className="h-4 w-4" />
                           </button>
                         </div>
                       </TableCell>
 
                       {/* 1099 vendor (2024) with edit */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm text-gray-600">
                             {vendor.vendor_1099_2024 || "—"}
                           </span>
-                          <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
-                            <Edit2 className="h-3.5 w-3.5" />
+                          <button className="text-gray-900 hover:text-gray-700 flex-shrink-0">
+                            <PenSquare className="h-4 w-4" />
                           </button>
                         </div>
                       </TableCell>
 
                       {/* Contract start */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* Contract end */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* Last date to terminate */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* Net payment terms */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* SOC Reports */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* COI */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* Company Website Link */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* Service based vendor? */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* COI Expiration Date */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
                       {/* Rate Vendor 1-10 */}
-                      <TableCell className="border-r border-gray-200">
+                      <TableCell className="border-r border-gray-200 cursor-pointer">
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
-                      {/* Sticky Kebab Menu */}
+                      {/* Sticky Kebab Menu - WITH HOVER */}
                       <TableCell
-                        className={`sticky right-0 z-10 ${
-                          isSelected ? "bg-green-50" : "bg-white"
+                        className={`sticky right-0 z-10 cursor-pointer border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
+                          isSelected
+                            ? "bg-green-50 group-hover:bg-green-50"
+                            : "bg-white group-hover:bg-gray-50"
                         }`}
                       >
                         <button className="text-gray-400 hover:text-gray-600">
-                          <MoreHorizontal className="h-4 w-4" />
+                          <VendorActionsMenu
+                          // vendorId={vendor.id}
+                          // onEditStatus={(id) =>
+                          //   console.log("Edit status", id)
+                          // }
+                          // onEditOwners={(id) =>
+                          //   console.log("Edit owners", id)
+                          // }
+                          // onEditDepartment={(id) =>
+                          //   console.log("Edit department", id)
+                          // }
+                          />
                         </button>
                       </TableCell>
                     </TableRow>
