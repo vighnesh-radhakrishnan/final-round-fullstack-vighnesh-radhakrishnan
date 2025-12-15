@@ -10,7 +10,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  MoreHorizontal,
   Search,
   X,
   ArrowUp,
@@ -21,6 +20,7 @@ import {
   Upload,
   PenSquare,
   CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 import type { Vendor } from "@/types/vendor";
 import { vendorApi } from "@/services/api";
@@ -94,6 +94,10 @@ export default function VendorTable() {
     }
   };
 
+  const handleClearSelection = () => {
+    setSelectedRows(new Set());
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -162,7 +166,7 @@ export default function VendorTable() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative pb-20">
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         {/* Search */}
@@ -216,14 +220,14 @@ export default function VendorTable() {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table with always-visible scrollbar */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-scroll" style={{ overflowX: "scroll" }}>
           <Table>
             <TableHeader>
               <TableRow className="border-b border-gray-200">
-                {/* Sticky Checkbox Column */}
-                <TableHead className="sticky left-0 z-20 bg-white border-r border-gray-200 w-[60px] pr-10">
+                {/* Sticky Checkbox Column - FIXED */}
+                <TableHead className="sticky left-0 z-30 bg-white border-r border-gray-200 w-[80px] px-6 text-gray-500 text-xs font-medium">
                   <div className="flex justify-center">
                     <Checkbox
                       checked={
@@ -235,8 +239,8 @@ export default function VendorTable() {
                   </div>
                 </TableHead>
 
-                {/* Sticky Vendor Column with RIGHT border */}
-                <TableHead className="sticky left-[60px] z-20 bg-white text-gray-600 text-xs font-medium border-r-2 border-gray-300 min-w-[250px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                {/* Sticky Vendor Column - FIXED BORDER */}
+                <TableHead className="sticky left-[80px] z-30 bg-white text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[250px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                   <button
                     onClick={() => handleSort("name")}
                     className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded w-full cursor-pointer"
@@ -252,11 +256,11 @@ export default function VendorTable() {
                 </TableHead>
 
                 {/* Scrollable Columns */}
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer pl-10">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer pl-10">
                   Owners
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium text-right border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-500 text-xs font-medium text-right border-r border-gray-200 min-w-[150px]">
                   <button
                     onClick={() => handleSort("total_spend")}
                     className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded ml-auto cursor-pointer"
@@ -271,7 +275,7 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium text-right border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-500 text-xs font-medium text-right border-r border-gray-200 min-w-[150px]">
                   <button
                     onClick={() => handleSort("thirty_day_spend")}
                     className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded ml-auto cursor-pointer"
@@ -286,11 +290,11 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   Description
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[180px]">
                   <button
                     onClick={() => handleSort("department")}
                     className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer"
@@ -305,15 +309,15 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[120px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[120px] cursor-pointer">
                   Contract
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   Vendor owner location
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px]">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px]">
                   <button
                     onClick={() => handleSort("creation_date")}
                     className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer"
@@ -328,11 +332,11 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[130px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[130px] cursor-pointer">
                   Payment type
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px]">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[180px]">
                   <button
                     onClick={() => handleSort("status")}
                     className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer"
@@ -347,68 +351,68 @@ export default function VendorTable() {
                   </button>
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Default contact
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Tax details
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Tax verification
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   1099 vendor (2025)
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   1099 vendor (2024)
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Contract start
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Contract end
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   Last date to terminate
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Net payment terms
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   SOC Reports
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[120px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[120px] cursor-pointer">
                   COI
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   Company Website Link
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[200px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[200px] cursor-pointer">
                   Service based vendor?
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[180px] cursor-pointer">
                   COI Expiration Date
                 </TableHead>
 
-                <TableHead className="text-gray-600 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
+                <TableHead className="text-gray-500 text-xs font-medium border-r border-gray-200 min-w-[150px] cursor-pointer">
                   Rate Vendor 1-10
                 </TableHead>
 
-                {/* Sticky Kebab Menu Column with LEFT border */}
-                <TableHead className="sticky right-0 z-20 bg-white w-[60px] border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]"></TableHead>
+                {/* Sticky Kebab Menu - FIXED BORDER */}
+                <TableHead className="sticky right-0 z-30 bg-white w-[60px] border-l border-gray-200 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-500 text-xs font-medium"></TableHead>
               </TableRow>
             </TableHeader>
 
@@ -416,12 +420,12 @@ export default function VendorTable() {
               {loading ? (
                 [...Array(8)].map((_, i) => (
                   <TableRow key={i} className="border-b border-gray-100">
-                    <TableCell className="sticky left-0 z-10 bg-white border-r border-gray-200 pr-10">
+                    <TableCell className="sticky left-0 z-20 bg-white border-r border-gray-200 px-6">
                       <div className="flex justify-center">
                         <div className="w-4 h-4 rounded bg-gray-200 animate-pulse" />
                       </div>
                     </TableCell>
-                    <TableCell className="sticky left-[60px] z-10 bg-white border-r-2 border-gray-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                    <TableCell className="sticky left-[80px] z-20 bg-white border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
                         <div className="space-y-2 flex-1">
@@ -436,7 +440,7 @@ export default function VendorTable() {
                     >
                       <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
                     </TableCell>
-                    <TableCell className="sticky right-0 z-10 bg-white border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]" />
+                    <TableCell className="sticky right-0 z-20 bg-white border-l border-gray-200 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]" />
                   </TableRow>
                 ))
               ) : vendors.length === 0 ? (
@@ -476,9 +480,9 @@ export default function VendorTable() {
                           : "hover:bg-gray-50"
                       }`}
                     >
-                      {/* Sticky Checkbox - WITH HOVER */}
+                      {/* Sticky Checkbox */}
                       <TableCell
-                        className={`sticky left-0 z-10 border-r border-gray-200 cursor-pointer pr-10 ${
+                        className={`sticky left-0 z-20 border-r border-gray-200 cursor-pointer px-6 ${
                           isSelected
                             ? "bg-green-50 group-hover:bg-green-50"
                             : "bg-white group-hover:bg-gray-50"
@@ -492,9 +496,9 @@ export default function VendorTable() {
                         </div>
                       </TableCell>
 
-                      {/* Sticky Vendor - WITH HOVER */}
+                      {/* Sticky Vendor */}
                       <TableCell
-                        className={`sticky left-[60px] z-10 border-r-2 border-gray-300 cursor-pointer shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
+                        className={`sticky left-[80px] z-20 border-r border-gray-200 cursor-pointer shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
                           isSelected
                             ? "bg-green-50 group-hover:bg-green-50"
                             : "bg-white group-hover:bg-gray-50"
@@ -515,7 +519,7 @@ export default function VendorTable() {
                         </div>
                       </TableCell>
 
-                      {/* Owners with hover edit */}
+                      {/* Owners */}
                       <TableCell
                         className="border-r border-gray-200 relative cursor-pointer pl-10"
                         onMouseEnter={() => setHoveredOwnerId(vendor.id)}
@@ -556,7 +560,7 @@ export default function VendorTable() {
                         {formatCurrency(vendor.thirty_day_spend)}
                       </TableCell>
 
-                      {/* Description with edit */}
+                      {/* Description */}
                       <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm text-gray-600 truncate">
@@ -575,14 +579,14 @@ export default function VendorTable() {
                         )}
                       </TableCell>
 
-                      {/* Contract with share icon */}
+                      {/* Contract */}
                       <TableCell className="border-r border-gray-200 cursor-pointer">
                         <button className="text-gray-400 hover:text-gray-600">
                           <Upload className="h-4 w-4" />
                         </button>
                       </TableCell>
 
-                      {/* Vendor owner location */}
+                      {/* Location */}
                       <TableCell className="border-r border-gray-200 cursor-pointer">
                         {vendor.location || (
                           <span className="text-gray-400">—</span>
@@ -599,7 +603,7 @@ export default function VendorTable() {
                         {getPaymentMethodDisplay(vendor.payment_method)}
                       </TableCell>
 
-                      {/* Vendor status with icon and edit */}
+                      {/* Vendor status */}
                       <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
@@ -617,7 +621,7 @@ export default function VendorTable() {
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
-                      {/* Tax details with edit */}
+                      {/* Tax details */}
                       <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm text-gray-600">
@@ -634,7 +638,7 @@ export default function VendorTable() {
                         <span className="text-gray-400">—</span>
                       </TableCell>
 
-                      {/* 1099 vendor (2025) with edit */}
+                      {/* 1099 vendor (2025) */}
                       <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm text-gray-600">
@@ -646,7 +650,7 @@ export default function VendorTable() {
                         </div>
                       </TableCell>
 
-                      {/* 1099 vendor (2024) with edit */}
+                      {/* 1099 vendor (2024) */}
                       <TableCell className="border-r border-gray-200 cursor-pointer">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm text-gray-600">
@@ -658,78 +662,25 @@ export default function VendorTable() {
                         </div>
                       </TableCell>
 
-                      {/* Contract start */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
+                      {/* Remaining placeholder columns */}
+                      {[...Array(10)].map((_, i) => (
+                        <TableCell
+                          key={i}
+                          className="border-r border-gray-200 cursor-pointer"
+                        >
+                          <span className="text-gray-400">—</span>
+                        </TableCell>
+                      ))}
 
-                      {/* Contract end */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
-
-                      {/* Last date to terminate */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
-
-                      {/* Net payment terms */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
-
-                      {/* SOC Reports */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
-
-                      {/* COI */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
-
-                      {/* Company Website Link */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
-
-                      {/* Service based vendor? */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
-
-                      {/* COI Expiration Date */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
-
-                      {/* Rate Vendor 1-10 */}
-                      <TableCell className="border-r border-gray-200 cursor-pointer">
-                        <span className="text-gray-400">—</span>
-                      </TableCell>
-
-                      {/* Sticky Kebab Menu - WITH HOVER */}
+                      {/* Sticky Kebab Menu */}
                       <TableCell
-                        className={`sticky right-0 z-10 cursor-pointer border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
+                        className={`sticky right-0 z-20 cursor-pointer border-l border-gray-200 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] ${
                           isSelected
                             ? "bg-green-50 group-hover:bg-green-50"
                             : "bg-white group-hover:bg-gray-50"
                         }`}
                       >
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <VendorActionsMenu
-                          // vendorId={vendor.id}
-                          // onEditStatus={(id) =>
-                          //   console.log("Edit status", id)
-                          // }
-                          // onEditOwners={(id) =>
-                          //   console.log("Edit owners", id)
-                          // }
-                          // onEditDepartment={(id) =>
-                          //   console.log("Edit department", id)
-                          // }
-                          />
-                        </button>
+                        <VendorActionsMenu />
                       </TableCell>
                     </TableRow>
                   );
@@ -744,6 +695,34 @@ export default function VendorTable() {
       {totalCount > 0 && (
         <div className="text-sm text-gray-500 text-center">
           1–{Math.min(100, totalCount)} of {totalCount} matching vendors
+        </div>
+      )}
+
+      {/* Bottom Selection Bar */}
+      {selectedRows.size > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-[#E8E4DA] border-t border-gray-300 py-3 px-6 z-40">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleClearSelection}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <span className="text-sm font-medium text-gray-900 underline">
+                {selectedRows.size} vendor{selectedRows.size > 1 ? "s" : ""}{" "}
+                selected
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <VendorActionsMenu />
+              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-sm font-medium text-gray-900">
+                Request information
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
