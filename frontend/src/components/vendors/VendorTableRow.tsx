@@ -83,15 +83,19 @@ export function VendorTableRow({
         onMouseLeave={() => setIsOwnerHovered(false)}
       >
         {vendor.owner ? (
-          <div className="flex items-center gap-2 justify-between">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1 pr-8">
               <div className="w-6 h-6 rounded-full bg-pink-200 flex items-center justify-center text-xs font-medium flex-shrink-0">
                 {getInitials(vendor.owner)}
               </div>
               <span className="text-sm truncate">{vendor.owner}</span>
             </div>
+            {/* Absolute positioned edit button - no shifting */}
             {isOwnerHovered && (
-              <button className="text-gray-900 hover:text-gray-700 flex-shrink-0">
+              <button
+                className="absolute right-2 text-gray-900 hover:text-gray-700"
+                style={{ top: "50%", transform: "translateY(-50%)" }}
+              >
                 <PenSquare className="h-4 w-4" />
               </button>
             )}
@@ -219,7 +223,14 @@ export function VendorTableRow({
           "border-l-2 border-gray-300 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] pr-6"
         )}
       >
-        <VendorActionsMenu />
+        <VendorActionsMenu
+          vendorId={vendor.id}
+          vendorName={vendor.name}
+          currentStatus={vendor.status}
+          currentOwner={vendor.owner || ""}
+          currentDepartment={vendor.department || ""}
+          onUpdate={() => window.location.reload()} // better use proper state management
+        />
       </TableCell>
     </TableRow>
   );

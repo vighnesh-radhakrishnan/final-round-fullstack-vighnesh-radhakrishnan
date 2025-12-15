@@ -1,69 +1,130 @@
 import { useState } from "react";
+import VendorTable from "@/components/vendors/VendorTable";
+import NewVendorModal from "@/components/vendors/NewVendorModal";
+import { EmptyTabPage } from "@/components/vendors/EmptyTabPage";
 import { Button } from "@/components/ui/button";
-import VendorTable from "./VendorTable";
-import NewVendorModal from "./NewVendorModal";
+
+type TabType =
+  | "overview"
+  | "needs-review"
+  | "renewals"
+  | "duplicates"
+  | "switch-cards";
 
 export default function VendorsPage() {
   const [isNewVendorOpen, setIsNewVendorOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const tabs = [
+    { id: "overview" as TabType, label: "Overview", badge: null },
+    { id: "needs-review" as TabType, label: "Needs review", badge: 0 },
+    { id: "renewals" as TabType, label: "Renewals", badge: null },
+    { id: "duplicates" as TabType, label: "Duplicates", badge: 2 },
+    { id: "switch-cards" as TabType, label: "Switch cards", badge: null },
+  ];
 
   const handleVendorCreated = () => {
-    setRefreshKey((prev) => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   };
 
-  // Main Vendor Page Component
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return <VendorTable key={refreshTrigger} />;
+
+      case "needs-review":
+        return (
+          <EmptyTabPage
+            title="No vendors need review"
+            description="Vendors requiring your attention will appear here for quick action."
+            iconType="review"
+          />
+        );
+
+      case "renewals":
+        return (
+          <EmptyTabPage
+            title="No upcoming renewals"
+            description="Track and manage vendor contract renewals to stay ahead of deadlines."
+            iconType="renewals"
+          />
+        );
+
+      case "duplicates":
+        return (
+          <EmptyTabPage
+            title="Merge duplicate vendors"
+            description="We found 2 potential duplicate vendors. Review and merge them to keep your vendor list clean."
+            iconType="duplicates"
+          />
+        );
+
+      case "switch-cards":
+        return (
+          <EmptyTabPage
+            title="Move spend onto Ramp"
+            description="Get assistance identifying and creating virtual cards for what you're currently spending on"
+            iconType="cards"
+          />
+        );
+
+      default:
+        return <VendorTable key={refreshTrigger} />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="px-6 py-6 flex items-center justify-between">
-          <h1 className="text-4xl font-normal text-gray-900">Vendors</h1>
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setIsNewVendorOpen(true)}
-              className="bg-[#E4F222] hover:bg-[#E4F222] hover:underline text-black font-medium rounded-md px-4 h-10"
-            >
-              New vendor
-            </Button>
+    <div className="relative min-h-screen bg-[#FCFBFA]">
+      {/* Blur overlay when modal is open */}
+      {isNewVendorOpen && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" />
+      )}
+
+      {/* Main content */}
+      <div className={isNewVendorOpen ? "blur-sm" : ""}>
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-6 py-6">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-normal">Vendors</h1>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setIsNewVendorOpen(true)}
+                className="bg-[#E4F222] hover:bg-[#E4F222] hover:underline text-black font-medium"
+              >
+                New vendor
+              </Button>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex items-center gap-8 border-b border-gray-200 -mb-px">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`pb-4 text-sm font-medium transition-colors relative ${
+                  activeTab === tab.id
+                    ? "text-gray-900 border-b-2 border-gray-900"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {tab.label}
+                {tab.badge !== null && (
+                  <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            ))}
           </div>
         </div>
-      </header>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="px-6">
-          <nav className="flex gap-6">
-            <button className="py-4 border-b-2 border-black font-normal text-sm text-gray-900">
-              Overview
-            </button>
-            <button className="py-4 text-gray-500 hover:text-gray-900 font-normal text-sm flex items-center gap-2">
-              Needs review
-              <span className="bg-gray-200 text-gray-700 text-xs rounded-full px-2 py-0.5">
-                0
-              </span>
-            </button>
-            <button className="py-4 text-gray-500 hover:text-gray-900 font-normal text-sm">
-              Renewals
-            </button>
-            <button className="py-4 text-gray-500 hover:text-gray-900 font-normal text-sm flex items-center gap-2">
-              Duplicates
-              <span className="bg-gray-200 text-gray-700 text-xs rounded-full px-2 py-0.5">
-                2
-              </span>
-            </button>
-            <button className="py-4 text-gray-500 hover:text-gray-900 font-normal text-sm">
-              Switch cards
-            </button>
-          </nav>
-        </div>
+        {/* Tab Content */}
+        <div className="h-[calc(100vh-180px)]">{renderTabContent()}</div>
       </div>
 
-      {/* Main Content */}
-      <main>
-        <VendorTable key={refreshKey} />
-      </main>
-
-      {/* New Vendor Modal */}
+      {/* New Vendor Sheet */}
       <NewVendorModal
         open={isNewVendorOpen}
         onOpenChange={setIsNewVendorOpen}
