@@ -84,9 +84,11 @@ export default function VendorsPage() {
       {/* Main content */}
       <div className={isNewVendorOpen ? "blur-sm" : ""}>
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-[32px] font-semibold">Vendors</h1>
+        <div className="bg-white border-b border-gray-200 px-6 pt-12 pb-0">
+          <div className="flex items-center justify-between mb-12">
+            <h1 className="text-[2.5rem] leading-[3rem] tracking-[-0.02em] font-medium text-[#1A1919]">
+              Vendors
+            </h1>
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => setIsNewVendorOpen(true)}
@@ -97,8 +99,8 @@ export default function VendorsPage() {
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex items-center gap-8 border-b border-gray-200 -mb-px">
+          {/* Tabs*/}
+          <div className="flex items-center gap-8">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -121,10 +123,10 @@ export default function VendorsPage() {
         </div>
 
         {/* Tab Content */}
-        <div>{renderTabContent()}</div>
+        {renderTabContent()}
       </div>
 
-      {/* New Vendor Sheet */}
+      {/* New Vendor Modal */}
       <NewVendorModal
         open={isNewVendorOpen}
         onOpenChange={setIsNewVendorOpen}

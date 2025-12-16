@@ -32,6 +32,7 @@ export default function VendorTable() {
 
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const scrollbarRef = useRef<HTMLDivElement>(null);
+
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
@@ -123,7 +124,7 @@ export default function VendorTable() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#FCFBFA]">
+    <>
       {/* Toolbar */}
       <div className="flex items-center justify-between px-6 py-4 bg-[#FCFBFA]">
         <div className="relative">
@@ -144,7 +145,6 @@ export default function VendorTable() {
             </button>
           )}
         </div>
-
         <div className="flex items-center gap-2">
           {[
             { icon: AlignJustify, label: "Group by" },
@@ -163,8 +163,8 @@ export default function VendorTable() {
         </div>
       </div>
 
-      {/* Table Container */}
-      <div className="flex-1 flex flex-col bg-white border-t border-gray-200">
+      {/* Table - sticky header */}
+      <div className="bg-white border-t border-gray-200">
         <div ref={tableScrollRef} className="overflow-x-auto">
           <Table className="relative">
             <VendorTableHeader
@@ -175,7 +175,6 @@ export default function VendorTable() {
               onSort={handleSort}
               onSelectAll={handleSelectAll}
             />
-
             <TableBody>
               {loading ? (
                 [...Array(8)].map((_, i) => (
@@ -255,7 +254,7 @@ export default function VendorTable() {
         />
       </div>
 
-      {/* Selection Bar */}
+      {/* Selection bar */}
       {selectedRows.size > 0 && (
         <div
           className="fixed bottom-0 left-0 right-0 border-t border-gray-300 py-3 px-6 z-50"
@@ -284,6 +283,6 @@ export default function VendorTable() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

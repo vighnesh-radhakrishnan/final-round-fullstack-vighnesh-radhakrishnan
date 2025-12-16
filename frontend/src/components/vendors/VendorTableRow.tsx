@@ -90,7 +90,6 @@ export function VendorTableRow({
               </div>
               <span className="text-sm truncate">{vendor.owner}</span>
             </div>
-            {/* Absolute positioned edit button - no shifting */}
             {isOwnerHovered && (
               <button
                 className="absolute right-2 text-gray-900 hover:text-gray-700"
@@ -229,7 +228,7 @@ export function VendorTableRow({
           currentStatus={vendor.status}
           currentOwner={vendor.owner || ""}
           currentDepartment={vendor.department || ""}
-          onUpdate={() => window.location.reload()} // better use proper state management
+          onUpdate={() => window.location.reload()}
         />
       </TableCell>
     </TableRow>
