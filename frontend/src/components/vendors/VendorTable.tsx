@@ -165,12 +165,8 @@ export default function VendorTable() {
 
       {/* Table Container */}
       <div className="flex-1 flex flex-col bg-white border-t border-gray-200">
-        <div
-          ref={tableScrollRef}
-          className="flex-1 overflow-x-auto overflow-y-auto"
-          style={{ maxHeight: "calc(100vh - 280px)" }}
-        >
-          <Table>
+        <div ref={tableScrollRef} className="overflow-x-auto">
+          <Table className="relative">
             <VendorTableHeader
               sortBy={sortBy}
               sortOrder={sortOrder}

@@ -54,7 +54,7 @@ export function VendorTableHeader({
   onSelectAll,
 }: VendorTableHeaderProps) {
   return (
-    <TableHeader>
+    <TableHeader className="sticky top-0 z-40 bg-white">
       <TableRow className="border-b border-gray-200">
         <TableHead className="sticky left-0 z-30 bg-white w-[80px] text-gray-500 text-xs font-medium border-r border-gray-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] pl-6">
           <Checkbox

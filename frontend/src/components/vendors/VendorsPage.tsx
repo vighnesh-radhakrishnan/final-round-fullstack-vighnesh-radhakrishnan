@@ -86,7 +86,7 @@ export default function VendorsPage() {
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-6 py-6">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-normal">Vendors</h1>
+            <h1 className="text-[32px] font-semibold">Vendors</h1>
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => setIsNewVendorOpen(true)}
@@ -121,7 +121,7 @@ export default function VendorsPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="h-[calc(100vh-180px)]">{renderTabContent()}</div>
+        <div>{renderTabContent()}</div>
       </div>
 
       {/* New Vendor Sheet */}
