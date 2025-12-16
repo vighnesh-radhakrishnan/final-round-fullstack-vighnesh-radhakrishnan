@@ -189,7 +189,7 @@ The vendor table displays all columns from Ramp's interface. Columns with unavai
 
 The vendor creation panel uses a simplified single-step form instead of Ramp's multi-step workflow, collecting basic vendor information with dropdown selections for payment and tax details (Not a full copy of original Ramp experience).
 
-The current scrolling experience is incorrect; the vendor section should scroll independently, with the table header remaining fixed.
+Currently the header for the table is not fixed as per the original Ramp's UI this needs to be addressed
 
 ## Author
 
